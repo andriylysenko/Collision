@@ -33,7 +33,7 @@ function CollisionGame() {
     this.swalls.push(new Wall(80.1, 80.1, 0.1, 0.0, 0.0, 40.1, 'texture/cube/brick/photos_2015_09_18_fst_7348gmdigtk.jpg', 0.4, true));
     this.vwalls.concat(this.hwalls).concat(this.swalls).forEach(wall => this.scene.add(wall.getShape()));
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 20; i++) {
       this.balls.push(new Ball(4, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 'texture/ball/ball1.png', Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1, 2.0));
     }
     this.balls.forEach(ball => this.scene.add(ball.getShape()));

@@ -10,7 +10,6 @@ function PredictionEventListener(events, verticalWalls, horizontalWalls, sideWal
     this.verticalWalls.forEach(wall => {
       var time = new CollisionUtils().timeToHitVerticalWall(event.getBall(), wall);
       if (time != undefined) {
-        console.log('time: ' + time);
         this.events.queue(new BallToVerticalWallCollisionEvent(event.getTime() + time, event.getBall()));
       }
     });
@@ -18,7 +17,6 @@ function PredictionEventListener(events, verticalWalls, horizontalWalls, sideWal
     this.horizontalWalls.forEach(wall => {
       var time = new CollisionUtils().timeToHitHorizontalWall(event.getBall(), wall);
       if (time != undefined) {
-        console.log('time: ' + time);
         this.events.queue(new BallToHorizontalWallCollisionEvent(event.getTime() + time, event.getBall()));
       }
     });
@@ -26,7 +24,6 @@ function PredictionEventListener(events, verticalWalls, horizontalWalls, sideWal
     this.sideWalls.forEach(wall => {
       var time = new CollisionUtils().timeToHitSideWall(event.getBall(), wall);
       if (time != undefined) {
-        console.log('time: ' + time);
         this.events.queue(new BallToSideWallCollisionEvent(event.getTime() + time, event.getBall()));
       }
     });
@@ -34,10 +31,6 @@ function PredictionEventListener(events, verticalWalls, horizontalWalls, sideWal
     this.balls.forEach(ball => {
       var time = new CollisionUtils().timeToHit(event.getBall(), ball);
       if (time != undefined) {
-        if (isNaN(time)) {
-          alert(time);
-        }
-        console.log('time: ' + time);
         this.events.queue(new BallToBallCollisionEvent(event.getTime() + time, event.getBall(), ball));
       }
     })
