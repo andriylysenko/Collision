@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <meta charset=utf-8>
+                <title>Three.js app</title>
+                <style>
+                        body { margin: 0; }
+                        canvas { width: 100%; height: 100% }
+                </style>
+        </head>
+        <body>
+                <script src="js/threejs/three.js"></script>
+                <script src="js/threejs/orbitControls.js"></script>
+                <script src="js/priority-queue/priority-queue.js"></script>
+
+                <script src="js/game/CollisionGame.js?v=17"></script>
+                <script src="js/game/collision/CollisionUtils.js?v=4"></script>
+
+
+                <script src="js/game/shapes/Wall.js?v=5"></script>
+                <script src="js/game/shapes/Ball.js?v=3"></script>
+
+                <script src="js/game/eventbus/EventBus.js?v=1"></script>
+                <script src="js/game/eventbus/Predicate.js?v=1"></script>
+                <script src="js/game/eventbus/Subscription.js?v=1"></script>
+
+                <script src="js/game/eventbus/events/GameEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/TickerEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/MovementEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/PredictionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallToWallCollisionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallToHorizontalWallCollisionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallToSideWallCollisionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallToVerticalWallCollisionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallToBallCollisionEvent.js?v=1"></script>
+                <script src="js/game/eventbus/events/BallCollisionReactionEvent.js?v=1"></script>
+
+                <script src="js/game/eventbus/listeners/EventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/TickerEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/MovementEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/PredictionEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/BallToHorizontalWallCollisionEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/BallToSideWallCollisionEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/BallToVerticalWallCollisionEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/BallToBallCollisionEventListener.js?v=3"></script>
+                <script src="js/game/eventbus/listeners/BallCollisionReactionEventListener.js?v=3"></script>
+
+                <script>
+                        var game = new CollisionGame()
+                        game.init();
+                        var animate = function () {
+                          requestAnimationFrame( animate );
+                          game.loop();
+                        };
+                        animate();
+                </script>
+        </body>
+</html>
