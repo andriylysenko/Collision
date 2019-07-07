@@ -7,6 +7,7 @@ function CollisionGame() {
   this.hwalls = [];
   this.swalls = [];
   this.balls = [];
+  this.controlledBall = null;
 
   this.bus = null;
   this.events = null;
@@ -36,6 +37,8 @@ function CollisionGame() {
     for (var i = 0; i < 20; i++) {
       this.balls.push(new Ball(4, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 'texture/ball/ball1.png', Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1, 2.0));
     }
+    this.controlledBall = new Ball(4, 0, 0, 0, 'texture/ball/ball2.jpeg', 0.4, 0.4, 0.4, 2.0);
+    this.balls.push(this.controlledBall);
     this.balls.forEach(ball => this.scene.add(ball.getShape()));
 
     this.events = new PriorityQueue({ comparator: (event1, event2) => { return event1.getTime() - event2.getTime() }})
@@ -44,11 +47,11 @@ function CollisionGame() {
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof TickerEvent), new TickerEventListener(this.events));
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof MovementEvent), new MovementEventListener(this.balls));
     this.bus.subscribe("main_events", new Predicate((event) => event instanceof PredictionEvent), new PredictionEventListener(this.events, this.vwalls, this.hwalls, this.swalls, this.balls));
-    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToVerticalWallCollisionEvent), new BallToVerticalWallCollisionEventListener(this.bus, this.events));
-    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToHorizontalWallCollisionEvent), new BallToHorizontalWallCollisionEventListener(this.bus, this.events));
-    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToSideWallCollisionEvent), new BallToSideWallCollisionEventListener(this.bus, this.events));
-    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToBallCollisionEvent), new BallToBallCollisionEventListener(this.bus, this.events));
+    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToVerticalWallCollisionEvent || event instanceof BallToHorizontalWallCollisionEvent || event instanceof BallToSideWallCollisionEvent), new BallToWallCollisionEventListener(this.events, this.controlledBall, this.balls));
+    this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToBallCollisionEvent), new BallToBallCollisionEventListener(this.events, this.controlledBall, this.balls));
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallCollisionReactionEvent), new BallCollisionReactionEventListener());
+    this.bus.subscribe('main_events', new Predicate((event) => event instanceof ControlledBallChangeDirectionEvent), new ControlledBallChangeDirectionEventListener(this.events, this.balls, this.vwalls, this.hwalls, this.swalls));
+    
 
     // start the game
     this.balls.forEach(ball => this.bus.publish('main_events', new PredictionEvent(0, ball)));
@@ -95,9 +98,9 @@ function CollisionGame() {
         this.bus.publish('main_events', new MovementEvent(event.getTime(), event.getTime() - this.gameTime));
         this.bus.publish('main_events', event);
         this.gameTime = event.getTime();
-      }
-      if (event instanceof TickerEvent) {
-        break;
+        if (event instanceof TickerEvent) {
+          break;
+        }
       }
       event = this.dequeue(this.events);
     }

@@ -9,6 +9,7 @@ function Ball(radius, x, y, z, textureImage, vx, vy, vz, mass) {
   this.vz = vz;
   this.mass = mass;
   this.directionChanges = 0;
+  this.texturedMaterialCache = {};
 
   this.createShape = function() {
     var geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
@@ -18,6 +19,8 @@ function Ball(radius, x, y, z, textureImage, vx, vy, vz, mass) {
     var material = new THREE.MeshBasicMaterial({
       map: texture,
     });
+    this.texturedMaterialCache[this.textureImage] = material;
+
     var shape = new THREE.Mesh( geometry, material );
 
     shape.castShadow = true;
@@ -72,12 +75,18 @@ function Ball(radius, x, y, z, textureImage, vx, vy, vz, mass) {
   }
 
   this.updateTexture = function(textureImage) {
-    this.textureImage = textureImage;
-    var loader = new THREE.TextureLoader();
-    var texture = loader.load(this.textureImage);
-    var material = new THREE.MeshBasicMaterial({
-      map: texture,
-    });
+    var material = null;
+    if (textureImage in this.texturedMaterialCache) {
+      material = this.texturedMaterialCache[textureImage];
+    } else {
+      this.textureImage = textureImage;
+      var loader = new THREE.TextureLoader();
+      var texture = loader.load(this.textureImage);
+      var material = new THREE.MeshBasicMaterial({
+        map: texture,
+      });
+    }
+
     this.shape.material = material;
   }
 
