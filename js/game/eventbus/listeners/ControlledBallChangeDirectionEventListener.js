@@ -17,7 +17,10 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
       return;
     }
 
-    var possibleDirections = [[-vx, vx], [-vy, vy], [-vz, vz]];
+    var pvx = vx === 0 ? 0.4 : vx;
+    var pvy = vy === 0 ? 0.4 : vy;
+    var pvz = vz === 0 ? 0.4 : vz;
+    var possibleDirections = [[-pvx, pvx, 0.5*pvx, -0.5*pvx, 2*pvx, -2*pvx, 0], [-pvy, pvy, 0.5*pvy, -0.5*pvy, 2*pvy, -2*pvy, 0], [-pvz, pvz, 0.5*pvz, -0.5*pvz, 2*pvz, -2*pvz, 0]];
     var directionPermutations = [];
     this.computePermutations(possibleDirections, 0, [], directionPermutations);
     directionPermutations = this.getAllowedDirections(ball, directionPermutations);
@@ -35,14 +38,18 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
     ball.changeDirection(params.vx, params.vy, params.vz);
     console.log('ball: x=' + ball.getX() + '; y=' + ball.getY() + '; z=' + ball.getZ());
     this.eventsQueue.queue(new PredictionEvent(event.getTime(), ball));
-    if (params.time !== undefined && params.time > 6) {
+    if (params.time !== undefined && params.time > 2) {
       this.eventsQueue.queue(new ControlledBallChangeDirectionEvent(event.getTime() + params.time / 2, ball, this.balls));
     }
   }
 
   this.findOptimalDirectionChange = function(ball, directionPermutations) {
     var params = {vx: 0, vy: 0, vz: 0, time: 0};
-    // var maxTime = 0;
+    
+    var vx = ball.getVx();
+    var vy = ball.getVy();
+    var vz = ball.getVz();
+
     var maxMinTime = 0;
     directionPermutations.forEach(direction => {
       ball.vx = direction[0];
@@ -69,6 +76,9 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
     if (params.time === 9007199254740992) {
       params.time = undefined;
     }
+    ball.vx = vx;
+    ball.vy = vy;
+    ball.vz = vz;
     return params;
   }
 
