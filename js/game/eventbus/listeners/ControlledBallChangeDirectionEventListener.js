@@ -20,7 +20,9 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
     var pvx = vx === 0 ? 0.4 : vx;
     var pvy = vy === 0 ? 0.4 : vy;
     var pvz = vz === 0 ? 0.4 : vz;
-    var possibleDirections = [[-pvx, pvx, 0.5*pvx, -0.5*pvx, 2*pvx, -2*pvx, 0], [-pvy, pvy, 0.5*pvy, -0.5*pvy, 2*pvy, -2*pvy, 0], [-pvz, pvz, 0.5*pvz, -0.5*pvz, 2*pvz, -2*pvz, 0]];
+    var possibleDirections = [[-pvx, pvx, 0.5*pvx, -0.5*pvx, 2*pvx, -2*pvx, 0], 
+                              [-pvy, pvy, 0.5*pvy, -0.5*pvy, 2*pvy, -2*pvy, 0], 
+                              [-pvz, pvz, 0.5*pvz, -0.5*pvz, 2*pvz, -2*pvz, 0]];
     var directionPermutations = [];
     this.computePermutations(possibleDirections, 0, [], directionPermutations);
     directionPermutations = this.getAllowedDirections(ball, directionPermutations);
@@ -38,8 +40,8 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
     ball.changeDirection(params.vx, params.vy, params.vz);
     console.log('ball: x=' + ball.getX() + '; y=' + ball.getY() + '; z=' + ball.getZ());
     this.eventsQueue.queue(new PredictionEvent(event.getTime(), ball));
-    if (params.time !== undefined && params.time > 2) {
-      this.eventsQueue.queue(new ControlledBallChangeDirectionEvent(event.getTime() + params.time / 2, ball, this.balls));
+    if (params.time !== undefined && params.time > 0.5) {
+      this.eventsQueue.queue(new ControlledBallChangeDirectionEvent(event.getTime() + params.time / 2.0, ball, this.balls));
     }
   }
 
@@ -84,11 +86,13 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
 
   this.getAllowedDirections = function(ball, directionPermutations) {
     // for each direction calculate time to hit each wall and if time to hit wall < threshold then this direction is not allowed
-    var threshold = 20;
+    var threshold = 0.5;
     var vx = ball.getVx();
     var vy = ball.getVy();
     var vz = ball.getVz();
 
+    // Todo redesign the code to check if time is undefined for all walls then remove direction from allowed
+    var allowedDirections = []
     var k = directionPermutations.length;
     while (k--) {
       var direction = directionPermutations[k];
@@ -99,9 +103,9 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
       var i = 0;
       for (i = 0; i < this.vwalls.length; i++) {
         var wall = this.vwalls[i];
-        var time = new CollisionUtils().timeToHitVerticalWall(ball, wall);
-        if (time != undefined && time < threshold) {
-          directionPermutations.splice(i, 1);
+        var time1 = new CollisionUtils().timeToHitVerticalWall(ball, wall);
+        if (time1 !== undefined && time1 < threshold) {
+          // directionPermutations.splice(k, 1);
           break;
         }
       }
@@ -111,9 +115,9 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
 
       for (i = 0; i < this.hwalls.length; i++) {
         var wall = this.hwalls[i];
-        var time = new CollisionUtils().timeToHitHorizontalWall(ball, wall);
-        if (time != undefined && time < threshold) {
-          directionPermutations.splice(i, 1);
+        var time2 = new CollisionUtils().timeToHitHorizontalWall(ball, wall);
+        if (time2 !== undefined && time2 < threshold) {
+          // directionPermutations.splice(k, 1);
           break;
         }
       }
@@ -123,21 +127,27 @@ function ControlledBallChangeDirectionEventListener(eventsQueue, balls, vwalls, 
 
       for (i = 0; i < this.swalls.length; i++) {
         var wall = this.swalls[i];
-        var time = new CollisionUtils().timeToHitSideWall(ball, wall);
-        if (time != undefined && time < threshold) {
-          directionPermutations.splice(i, 1);
+        var time3 = new CollisionUtils().timeToHitSideWall(ball, wall);
+        if (time3 !== undefined && time3 < threshold) {
+          // directionPermutations.splice(k, 1);
           break;
         }
       }
       if (i < this.swalls.length) {
         continue;
       }
+
+      if (time1 === undefined && time2 === undefined && time3 === undefined) {
+        //directionPermutations.splice(k, 1);
+        continue;
+      }
+      allowedDirections.push(direction);
     }
 
     ball.vx = vx;
     ball.vy = vy;
     ball.vz = vz;
-    return directionPermutations;
+    return allowedDirections;
   }
 
   this.computePermutations = function(possibleDirections, currentIndex, currentResult, result) {

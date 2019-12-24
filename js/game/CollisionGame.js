@@ -52,11 +52,14 @@ function CollisionGame(ballsCount) {
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallToBallCollisionEvent), new BallToBallCollisionEventListener(this.events, this.controlledBall, this.balls));
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof BallCollisionReactionEvent), new BallCollisionReactionEventListener());
     this.bus.subscribe('main_events', new Predicate((event) => event instanceof ControlledBallChangeDirectionEvent), new ControlledBallChangeDirectionEventListener(this.events, this.balls, this.vwalls, this.hwalls, this.swalls));
+    this.bus.subscribe('main_events', new Predicate((event) => event instanceof EndGameEvent), new EndGameEventListener(this.events));
+    this.bus.subscribe('main_events', new Predicate((event) => event instanceof StartGameEvent), new StartGameEventListener(this.events, this.balls));
     
 
     // start the game
-    this.balls.forEach(ball => this.bus.publish('main_events', new PredictionEvent(0, ball)));
-    this.bus.publish('main_events', new TickerEvent(0));
+    // this.balls.forEach(ball => this.bus.publish('main_events', new PredictionEvent(0, ball)));
+    // this.bus.publish('main_events', new TickerEvent(0));
+    this.bus.publish('main_events', new StartGameEvent(0));
   }
 
   this.createScene = function() {
@@ -96,6 +99,9 @@ function CollisionGame(ballsCount) {
     var event = this.dequeue(this.events);
     while (event) {
       if (event.isValid()) {
+        if (event instanceof StartGameEvent) {
+          this.gameTime = 0;
+        }
         this.bus.publish('main_events', new MovementEvent(event.getTime(), event.getTime() - this.gameTime));
         this.bus.publish('main_events', event);
         this.gameTime = event.getTime();

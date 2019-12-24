@@ -8,6 +8,12 @@ function BallToBallCollisionEventListener(eventsQueue, controlledBall, balls) {
     var ball1 = event.getBall1();
     var ball2 = event.getBall2();
 
+    if (ball1 === this.controlledBall || ball2 === this.controlledBall) {
+      this.eventsQueue.queue(new EndGameEvent(event.getTime()));
+      alert('Collision with controlled ball! Game time: ' + event.getTime());
+      return;
+    }
+
     var velocities = new CollisionUtils().velocitiesAfterBounce(ball1, ball2);
 
     ball1.changeDirection(velocities.vx1, velocities.vy1, velocities.vz1);
